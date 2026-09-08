@@ -1,0 +1,10 @@
+frontend/
+venv/
+__pycache__/
+*.pyc
+db.sqlite3
+*.log
+*.html
+.pytest_cache/
+.env
+
