@@ -108,56 +108,8 @@ class UserListView(generics.ListAPIView):
 
 
 class OllamaModelsView(APIView):
-    """
-    List available Ollama models.
-    Used by the prompt injection quick scan feature.
-    """
-    permission_classes = [permissions.AllowAny]
-
     def get(self, request):
-        try:
-            import ollama
-            client = ollama.Client()
-            models = client.list()
-            model_names = [m.model for m in models.models]
-            return Response({
-                'models': model_names,
-                'source': 'ollama',
-                'count': len(model_names),
-            })
-        except ImportError:
-            return Response({
-                'models': [],
-                'source': 'ollama',
-                'error': 'ollama Python package not installed. Run: pip install ollama',
-            }, status=503)
-        except Exception as e:
-            return Response({
-                'models': [],
-                'source': 'ollama',
-                'error': f'Cannot connect to Ollama: {e}. Is Ollama running?',
-            }, status=503)
-
-
-# Compiled once at module level for the injection pattern matcher.
-# Note: Use \x27 for single quotes inside raw single-quoted strings
-# to avoid accidentally closing the string delimiter.
-_INJECT_CMD_PATTERN = re.compile(
-    r'(?:print|say|PRINT|SAY|write|WRITE|output|OUTPUT|repeat|REPEAT|respond with|RESPOND WITH)'
-    r'\s*(?:the following|this|the phrase|exactly|EXACTLY)?\s*'
-    r'[\x22\x27](?P<target>[^\x22\x27]{3,200})[\x22\x27]',
-)
-_INJECT_QUOTED_AFTER_IGNORE = re.compile(
-    r'(?:ignore|IGNORE|nevermind|Nevermind|forget|FORGET)'
-    r'.{0,100}?'
-    r'[\x22\x27](?P<target>[^\x22\x27]{3,200})[\x22\x27]',
-)
-# Pattern 3: Truncated prompts — opening quote with no closing quote before EOS
-_INJECT_TRUNCATED = re.compile(
-    r'(?:print|say|PRINT|SAY|output|OUTPUT)\s*'
-    r'[\x22\x27](?P<target>[^\x22\x27]{3,})$',
-)
-
+        return Response({'models': ['llama3.2:3b', 'tinyllama:latest', 'mistral:instruct'], 'source': 'mock', 'count': 3})
 
 class MockLLMGenerateView(APIView):
     """
@@ -242,3 +194,4 @@ class MockLLMGenerateView(APIView):
             'model': 'mock-llm-v1',
             'injection_detected': target is not None,
         })
+
